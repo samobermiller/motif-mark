@@ -10,7 +10,7 @@ class motif:
         '''This is how a motif is made'''
         ## Data ##
         self.sequence = sequence
-    ## Methods ##
+    ## Method ##
     def fix_ambiguity(self,sequence):
         "take motif and generate regex expression that can be used to search sequence while accounting for any ambiguity from motif or sequence"
         sequence=sequence.upper()
@@ -19,7 +19,6 @@ class motif:
         fixed_sequence=str()
         for letter in sequence:
             fixed_sequence+=fix[letter]
-        #print(fixed_sequence)
         return[fixed_sequence]
         #creates regular expression based on given motif that you can use to search input sequence
 #TEST for class motif
@@ -27,72 +26,68 @@ class motif:
 # amb=practice.fix_ambiguity(practice.sequence)
 # print(amb[0])
 
-class gene:
-    def __init__(self, sequence):
-        '''This is how an intron is made'''
-        ## Data ##
-        self.sequence = sequence
-    ## Methods ##
-    #def draw(self):
-        #draw thin line for intron, draw thick line for exon
-
 ##Generate motif regex statements
 args=get_args()
 motifs=[]
 with open(args.motif, "r") as motif_list:
     for line in motif_list:
         motifs.append(line.strip())
-#print(motifs)
 possible_motifs=[]
 for item in motifs:
     item_fix=motif(item)
-    #print(item_fix.fix_ambiguity(item))
     possible_motifs+=item_fix.fix_ambiguity(item)
 #print(possible_motifs[1])
 #possible_motifs now stores regex expressions for each motif given in args.motif
 import re
 match=re.findall(r'[ \w-]+?(?=\.)', args.file)
 output_filename=match[0]
-#print(output_filename)
 output=open(f'{output_filename}.fa', "w")
 count_lines=0
 #Open canvas
 import cairo
-
 ##Parse motif and fasta file by header
+headers=0
+#number of headers
 start=10
+#start point, running sum
 total_bases=0
+#total number of nucleotides
 lower_bases=0
+#intron bases
 upper_bases=0
+#exon bases
+motif_base=0
+#bases in motifs
 count_nomotif=0
 count_motif=0
+#number of motifs found
 surface = cairo.SVGSurface(f"{output_filename}_plot.svg", 1000, 100)
 context = cairo.Context(surface)
 with open(args.file,"r") as fasta:
+    #PER LINE
     for line in fasta:
         if line.startswith(">"):
-            #print(line)
+            headers+=1
             output.write(line)
         else:
             line=line.strip('\n')
-            #print(line)
             motif_match=()
             for entry in possible_motifs:
                 motif_match=re.findall(f'{entry}', line)
-                #if motif_match not empty then:
+                #list of motif matches in the current line based on regex created with class motif
+            #if the number of motifs in the line is not 0 then:
             if len(motif_match)!=0:
-                count_motif+=1
                 #print(motif_match)
-                #FIGURE OUT WAY TO GO THROUGH LINE AND DRAW INTRONS OR EXONS AND DIFFERENTIATE MOTIFS. MAYBE THIS NEEDS TO BE ANOTHER OOP???
+                #PER MOTIF
                 for motif_seq in motif_match:
                     #for each motif match in the line
-                    #print(seq)
-                    #print(line)
+                    count_motif+=1
                     pre_motif=re.findall(f'.*(?={motif_seq})', line)
-                    #sequence before the motif
                     pre_motif=pre_motif[0]
-                    #print(sequence)
+                    #pre_motif is the sequence before the current motif
+                    #PER BASE
                     for base in pre_motif:
+                    #differentiate exons and introns before motif match
                         total_bases+=1
                         start+=1
                         context.move_to(start,40)
@@ -112,24 +107,17 @@ with open(args.file,"r") as fasta:
                     for base in motif_seq:
                         total_bases+=1
                         start+=1
+                        motif_base+=1
                         context.move_to(start,40)
-                        if base.islower():
-                            #print(base)
-                            lower_bases+=1
-                            context.set_line_width(5)
-                            context.move_to(start,40)
-                            context.set_source_rgba(4, 0, 4, 0.5)
-                            context.line_to(start+1,40)
-                            context.stroke()
-                        if base.isupper():
-                            upper_bases+=1
-                            context.set_line_width(30)
-                            context.move_to(start,40)
-                            context.line_to(start+1,40)
-                            context.stroke()                        
+                        context.set_line_width(30)
+                        context.move_to(start,40)
+                        context.set_source_rgba(4, 0, 4, 0.5)
+                        context.line_to(start+1,40)
+                        context.stroke()                   
             if len(motif_match)==0:
                 count_nomotif+=1
                 context.set_source_rgba (0, 0, 0, 1)
+                #PER BASE
                 for base in line:
                     total_bases+=1
                     start+=1
@@ -149,11 +137,15 @@ with open(args.file,"r") as fasta:
                         context.line_to(start+1,40)
                         context.stroke()
         count_lines+=1
-surface.write_to_png("ooca_motif_plot.png")
+surface.write_to_png(f"{output_filename}_plot.png")
 surface.finish()
-# # print(count_nomotif)
-# # print(count_motif)
-# print(upper_bases)
-# print(lower_bases)
-# print(count_lines)
-# print(total_bases)
+print(f"# of Headers= {headers}")
+print(f"Total Lines in File= {count_lines}")
+print(f"# of Motifs= {count_motif}")
+print(f"# of Motif Bases= {motif_base}")
+print(f"# of Exon Bases= {upper_bases}")
+print(f"# of Introns Bases= {lower_bases}")
+print(f"# Total Bases= {total_bases}")
+
+
+##Current issue: not all motifs are depicted in figure getting drawn. keep making counts to find where issue is, total bases checks out
