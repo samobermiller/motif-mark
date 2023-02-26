@@ -39,7 +39,6 @@ with open(args.motif, "r") as motif_list:
         line=line.strip('\n')
         item_fix=motif(line,color[i])
         i+=1
-        possible_motifs+=item_fix.fix_ambiguity(line)
         motif_classes.append(item_fix)
 #possible_motifs now stores regex expressions for each motif given in args.motif
 
@@ -91,7 +90,6 @@ with open(f"./{output_filename}_one_line.fa", "r") as new_fasta:
                 #print(segment)
                 segment_length=len(segment)
                 end=start+segment_length
-                context.set_source_rgb (0, 0, 0)
                 if segment.isupper():
                     #print(f"exon length {segment_length}")
                     #print(f"start position {start}")
@@ -99,6 +97,7 @@ with open(f"./{output_filename}_one_line.fa", "r") as new_fasta:
                     context.set_line_width(30)
                     context.move_to(start,line_value)
                     context.line_to(end,line_value)
+                    context.set_source_rgb (0, 0, 0)
                     context.stroke()
                 if segment.islower():
                     #print(f"intron length {segment_length}")
@@ -107,15 +106,22 @@ with open(f"./{output_filename}_one_line.fa", "r") as new_fasta:
                     context.set_line_width(5)
                     context.move_to(start,line_value)
                     context.line_to(end,line_value)
+                    context.set_source_rgb (0, 0, 0)
                     context.stroke()
                 start+=segment_length
             motif_match=()
             for single in motif_classes:
+                #print(single.sequence)
+                possible_motifs=[]
                 possible_motifs+=single.fix_ambiguity(single.sequence)
                 #print(single.color)
                 for entry in possible_motifs:
+                    #color assignment issue here
+                    motif_match = ()
                     motif_match=re.findall(f'{entry}', line)
+                    #print(motif_match)
                     for motif_seq in motif_match:
+                        #print(motif_seq, single.color)
                         #for each motif match in the segment
                         pre_motif=re.findall(f'.*(?={motif_seq})', line)
                         #motif_color=
@@ -134,11 +140,11 @@ with open(f"./{output_filename}_one_line.fa", "r") as new_fasta:
                         color1=single.color[0]
                         color2=single.color[1]
                         color3=single.color[2]
-                        print(single.color)
-                        
-                        context.set_source_rgb(color1, color2, color3)
+                        #print(single.color)
+                       # print(single.sequence)
                         context.move_to(motif_start,line_value)
                         context.line_to(motif_end,line_value)
+                        context.set_source_rgb(color1, color2, color3)
                         context.stroke()
                         #print(start)
                         #whats the length of the segment?
