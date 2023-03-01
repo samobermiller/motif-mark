@@ -7,11 +7,13 @@ def get_args():
     return parser.parse_args()
 ##OOP
 class motif:
-    def __init__(self, sequence,color):
+    def __init__(self, sequence,color,legend_text,legend_location):
         '''This is how a motif is made'''
         ## Data ##
         self.sequence = sequence
         self.color=color
+        self.legend_text=legend_text
+        self.legend_location=legend_location
     ## Method ##
     def fix_ambiguity(self,sequence):
         "take motif and generate regex expression that can be used to search sequence while accounting for any ambiguity from motif or sequence"
@@ -34,10 +36,11 @@ possible_motifs=[]
 i=0
 motif_classes=[]
 color=[[0,0.2,0.8],[0.6,0,0.4],[1,0,0],[0.5,0.2,0.3],[0.3,0.7,0.2]]
+locations=[[35,375],[35,400],[35,425],[35,450],[35,475]]
 with open(args.motif, "r") as motif_list:
     for line in motif_list:
         line=line.strip('\n')
-        item_fix=motif(line,color[i])
+        item_fix=motif(line,color[i],line,locations[i])
         i+=1
         motif_classes.append(item_fix)
 #possible_motifs now stores regex expressions for each motif given in args.motif
@@ -94,7 +97,7 @@ with open(f"./{output_filename}_one_line.fa", "r") as new_fasta:
                     #print(f"exon length {segment_length}")
                     #print(f"start position {start}")
                     #print(f"end position {end}")
-                    context.set_line_width(30)
+                    context.set_line_width(20)
                     context.move_to(start,line_value)
                     context.line_to(end,line_value)
                     context.set_source_rgb (0, 0, 0)
@@ -110,11 +113,12 @@ with open(f"./{output_filename}_one_line.fa", "r") as new_fasta:
                     context.stroke()
                 start+=segment_length
             motif_match=()
+            location=()
             for single in motif_classes:
                 #print(single.sequence)
                 possible_motifs=[]
                 possible_motifs+=single.fix_ambiguity(single.sequence)
-                #print(single.color)
+                #print(single.sequence)
                 for entry in possible_motifs:
                     #color assignment issue here
                     motif_match = ()
@@ -136,7 +140,11 @@ with open(f"./{output_filename}_one_line.fa", "r") as new_fasta:
                         #print(f"motif length {motif_length}")
                         #print(f"start position {motif_start}")
                         #print(f"end position {motif_end}")
-                        context.set_line_width(30)
+                        location=single.legend_location
+                        location1=location[0]
+                        location2=location[1]
+                        #print(single.color)
+                        context.set_line_width(25)
                         color1=single.color[0]
                         color2=single.color[1]
                         color3=single.color[2]
@@ -146,10 +154,24 @@ with open(f"./{output_filename}_one_line.fa", "r") as new_fasta:
                         context.line_to(motif_end,line_value)
                         context.set_source_rgb(color1, color2, color3)
                         context.stroke()
+                        context.set_font_size(13)
+                        context.move_to(location1,location2)
+                        context.show_text(single.sequence)
+                        context.stroke()
                         #print(start)
                         #whats the length of the segment?
                         #is it upper or lower case?
+context.set_source_rgb (0, 0, 0)
+context.set_line_width(4)
+context.rectangle(30, 350, 100, 125)
+#context.rectangle(x coordinate of left side, y coordinate of top side, width, height)
+context.stroke()
+context.set_font_size(25)
+context.move_to(15, 340)
+context.show_text("Figure Legend")
+context.stroke()
 surface.write_to_png(f"{output_filename}_plot.png")
 surface.finish()
 # for single in motif_classes:
 #     print(single.color)
+#print(motif_dict)
