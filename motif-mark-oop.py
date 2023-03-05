@@ -35,7 +35,7 @@ args=get_args()
 possible_motifs=[]
 i=0
 motif_classes=[]
-color=[[0,0.2,0.8],[0.6,0,0.4],[1,0,0],[0.5,0.2,0.3],[0.3,0.7,0.2]]
+color=[[0.5,0,0],[0.9,0.7,0],[0.3,0.6,1],[0.2,0.7,0.1]]
 locations=[[35,675],[35,700],[35,725],[35,750],[35,775]]
 with open(args.motif, "r") as motif_list:
     for line in motif_list:
@@ -75,8 +75,6 @@ with open(f"./{output_filename}_one_line.fa", "w") as output:
                 sequence+=line
         output.write(header+"\n")
         output.write(sequence+"\n")
-motif_dict={}
-#motif_seq: start,end
 ##Parse new fasta file
 line_value=10
 header_location=50
@@ -84,7 +82,7 @@ with open(f"./{output_filename}_one_line.fa", "r") as new_fasta:
     for line in new_fasta:
         if line.startswith(">"):
             header=line
-            print(header)
+            #print(header)
             context.set_source_rgb (0, 0, 0)
             context.set_font_size(13)
             context.move_to(15,header_location)
@@ -138,15 +136,11 @@ with open(f"./{output_filename}_one_line.fa", "r") as new_fasta:
                         #print(motif_seq, single.color)
                         #for each motif match in the segment
                         pre_motif=re.findall(f'.*(?={motif_seq})', line)
-                        #motif_color=
                         #print(motif_seq)
                         #print(pre_motif[0])
                         motif_length=len(motif_seq)
                         motif_start=len(pre_motif[0])
                         motif_end=motif_start+motif_length
-                        motif_dict[motif_seq]=motif_start,motif_end
-                        #print(motif_start)
-                        #print(motif_length)
                         #print(f"motif length {motif_length}")
                         #print(f"start position {motif_start}")
                         #print(f"end position {motif_end}")
@@ -169,8 +163,6 @@ with open(f"./{output_filename}_one_line.fa", "r") as new_fasta:
                         context.show_text(single.sequence)
                         context.stroke()
                         #print(start)
-                        #whats the length of the segment?
-                        #is it upper or lower case?
 context.set_source_rgb (0, 0, 0)
 context.set_line_width(4)
 context.rectangle(30, 645, 100, 125)
@@ -182,6 +174,3 @@ context.show_text("Figure Legend")
 context.stroke()
 surface.write_to_png(f"{output_filename}.png")
 surface.finish()
-# for single in motif_classes:
-#     print(single.color)
-#print(motif_dict)
