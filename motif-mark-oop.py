@@ -36,7 +36,7 @@ possible_motifs=[]
 i=0
 motif_classes=[]
 color=[[0,0.2,0.8],[0.6,0,0.4],[1,0,0],[0.5,0.2,0.3],[0.3,0.7,0.2]]
-locations=[[35,375],[35,400],[35,425],[35,450],[35,475]]
+locations=[[35,675],[35,700],[35,725],[35,750],[35,775]]
 with open(args.motif, "r") as motif_list:
     for line in motif_list:
         line=line.strip('\n')
@@ -53,8 +53,10 @@ output_filename=match[0]
 
 #open canvas
 import cairo
-surface = cairo.SVGSurface(f"{output_filename}_plot.svg", 1000, 500)
+surface = cairo.SVGSurface(f"{output_filename}.svg", 1000, 800)
 context = cairo.Context(surface)
+context.set_source_rgb(1,1,1)
+context.paint()
 
 ##Make Fasta file input into single line sequence
 sequence=""
@@ -77,13 +79,21 @@ motif_dict={}
 #motif_seq: start,end
 ##Parse new fasta file
 line_value=10
+header_location=50
 with open(f"./{output_filename}_one_line.fa", "r") as new_fasta:
     for line in new_fasta:
         if line.startswith(">"):
-            continue
+            header=line
+            print(header)
+            context.set_source_rgb (0, 0, 0)
+            context.set_font_size(13)
+            context.move_to(15,header_location)
+            context.show_text(header)
+            context.stroke()
+            header_location+=60
         else:
             line=line.strip('\n')
-            line_value+=40
+            line_value+=60
             sequence_length=len(line)
             new_line=re.split(f'[a-z][A-Z]|[A-Z][a-z]',line)
             #print(new_line)
@@ -163,14 +173,14 @@ with open(f"./{output_filename}_one_line.fa", "r") as new_fasta:
                         #is it upper or lower case?
 context.set_source_rgb (0, 0, 0)
 context.set_line_width(4)
-context.rectangle(30, 350, 100, 125)
+context.rectangle(30, 645, 100, 125)
 #context.rectangle(x coordinate of left side, y coordinate of top side, width, height)
 context.stroke()
 context.set_font_size(25)
-context.move_to(15, 340)
+context.move_to(15, 635)
 context.show_text("Figure Legend")
 context.stroke()
-surface.write_to_png(f"{output_filename}_plot.png")
+surface.write_to_png(f"{output_filename}.png")
 surface.finish()
 # for single in motif_classes:
 #     print(single.color)
