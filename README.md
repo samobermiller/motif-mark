@@ -41,5 +41,5 @@ A key is created at the bottom of the image. The image is then exported as both 
 Overlapping motifs will be colored by last match. All elements (motifs, introns, exons) are to scale by base length. 
 
 ## Example Image Output:
-![Figure_1](https://user-images.githubusercontent.com/105182636/222937470-ab37ec87-d2c6-442d-833e-d8dff018c992.png)
+![image](https://user-images.githubusercontent.com/105182636/223596075-351d2290-79f8-4385-85e6-bd528c2593aa.png)
 
