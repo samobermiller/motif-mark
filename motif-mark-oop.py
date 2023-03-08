@@ -127,42 +127,49 @@ with open(f"./{output_filename}_one_line.fa", "r") as new_fasta:
                 possible_motifs=[]
                 possible_motifs+=single.fix_ambiguity(single.sequence)
                 #print(single.sequence)
+                #print(possible_motifs)
                 for entry in possible_motifs:
                     #color assignment issue here
                     motif_match = ()
-                    motif_match=re.findall(f'{entry}', line)
+                    # motif_match=re.findall(f'{entry}', line)
+                    #motif_match=re.finditer(f'{entry}', line)
+                    motif_match=re.findall(f'(?=({entry}))', line)
                     #print(motif_match)
+                    #print(entry)
                     for motif_seq in motif_match:
                         #print(motif_seq, single.color)
                         #for each motif match in the segment
-                        pre_motif=re.findall(f'.*(?={motif_seq})', line)
-                        #print(motif_seq)
-                        #print(pre_motif[0])
-                        motif_length=len(motif_seq)
-                        motif_start=len(pre_motif[0])
-                        motif_end=motif_start+motif_length
-                        #print(f"motif length {motif_length}")
-                        #print(f"start position {motif_start}")
-                        #print(f"end position {motif_end}")
-                        location=single.legend_location
-                        location1=location[0]
-                        location2=location[1]
-                        #print(single.color)
-                        context.set_line_width(25)
-                        color1=single.color[0]
-                        color2=single.color[1]
-                        color3=single.color[2]
-                        #print(single.color)
-                       # print(single.sequence)
-                        context.move_to(motif_start,line_value)
-                        context.line_to(motif_end,line_value)
-                        context.set_source_rgb(color1, color2, color3)
-                        context.stroke()
-                        context.set_font_size(13)
-                        context.move_to(location1,location2)
-                        context.show_text(single.sequence)
-                        context.stroke()
-                        #print(start)
+                       #print(motif_seq)
+                        # pre_motif=re.findall(f'.*(?={motif_seq})', line)
+                        pre_motif=re.finditer(f'{motif_seq}', line)
+                        for m in pre_motif:
+                            motif_start=m.start()+10
+                            motif_end=m.end()+10
+                            #print(m.group(), motif_start, motif_end)
+#                         motif_length=len(motif_seq)
+#                         motif_start=len(pre_motif[0])
+#                         motif_end=motif_start+motif_length
+#                         #motif_start=motif_seq.span()[0]+10
+#                         #motif_end=motif_seq.span()[1]+10
+                            location=single.legend_location
+                            location1=location[0]
+                            location2=location[1]
+                            #print(single.color)
+                            context.set_line_width(25)
+                            color1=single.color[0]
+                            color2=single.color[1]
+                            color3=single.color[2]
+                            #print(single.color)
+                        # print(single.sequence)
+                            context.move_to(motif_start,line_value)
+                            context.line_to(motif_end,line_value)
+                            context.set_source_rgb(color1, color2, color3)
+                            context.stroke()
+                            context.set_font_size(13)
+                            context.move_to(location1,location2)
+                            context.show_text(single.sequence)
+                            context.stroke()
+                            #print(start)
 context.set_source_rgb (0, 0, 0)
 context.set_line_width(4)
 context.rectangle(30, 645, 100, 125)
